@@ -1,1 +1,5 @@
-/MMUIrisDatabase
+MMU-Iris-Database/
+OutputData/
+__pycache__
+*.pyc
+*.zip
