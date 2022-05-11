@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+from typing import Tuple
 '''
 ImageEnhancement equalizes the histogram of the image
 '''
@@ -47,3 +47,25 @@ def normalize(boundary,centers, iris_radius):
         normalized.append(res)
         cent+=1
     return normalized 
+
+def normalizeNonconcentric(image : np.ndarray, iris_center: Tuple[int,int], iris_radius: int, pupil_center: Tuple[int,int], pupil_radius: int, nsamples = 360, relative_rotation = 0.0):
+    polar = np.zeros((iris_radius, nsamples))
+    samples = np.linspace(0, 2 * np.pi, nsamples + 1)[:-1] + relative_rotation
+    for r_idx, r in enumerate(np.linspace(0, 1, iris_radius)):
+        for theta_idx, theta in enumerate(samples):
+            x_iris = iris_center[0] + iris_radius * np.cos(theta)
+            y_iris = iris_center[1] + iris_radius * np.sin(theta)
+
+            x_pupil = pupil_center[0] + pupil_radius * np.cos(theta)
+            y_pupil = pupil_center[1] + pupil_radius * np.sin(theta)
+
+            x = (1 - r) * x_pupil + r * x_iris
+            y = (1 - r) * y_pupil + r * y_iris
+            x, y = int(x), int(y)
+            try:
+                polar[r_idx][theta_idx] = image[y][x]
+            except IndexError:
+                pass
+            continue
+    res = cv2.resize(polar, (512, 64))
+    return res

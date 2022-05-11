@@ -1,5 +1,5 @@
 MMU-Iris-Database/
-OutputData/
+OutputData*/
 __pycache__
 *.pyc
 *.zip
