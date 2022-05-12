@@ -1,3 +1,4 @@
+from matplotlib.pyplot import gray
 from calculateIris import *
 from findIris import find_iris_adjusted
 from irisNormalization import normalizeNonconcentric
@@ -11,15 +12,18 @@ def computeNormalizedIrisAndSave(path, closeFigAfter = True, saveResults = True)
 
 
     gray_image = preprocess_image(exampleArray)
+    blurred_image = cv2.GaussianBlur(gray_image, (15, 15), 5,5)
 
-    outer_boundary = find_iris_adjusted(gray_image, daugman_start=35, daugman_end=80, daugman_step=1, points_step=2)
+    outer_boundary = find_iris_adjusted(blurred_image, daugman_start=45, daugman_end=80, daugman_step=1, points_step=2)
     iris_center, iris_rad = outer_boundary
 
     pupil_crop = preprocess_pupil(gray_image, iris_center, iris_rad)
-    inner_boundary = find_iris_adjusted(pupil_crop, daugman_start=round(0.3*iris_rad), daugman_end=round(0.8*iris_rad), daugman_step=1, points_step=2)
+    blurred_pupil = cv2.GaussianBlur(pupil_crop, (15, 15), 5,5)
+    inner_boundary = find_iris_adjusted(blurred_pupil, daugman_start=round(0.3*iris_rad), daugman_end=round(0.8*iris_rad), daugman_step=1, points_step=1, scan_ratio = 0.6)
     pupil_center, pupil_rad = inner_boundary
 
-    normalized = normalizeNonconcentric(gray_image, iris_center, iris_rad, pupil_center, pupil_rad)
+    pupil_center_iris_coords = (pupil_center[0] + iris_center[0] - iris_rad, pupil_center[1] + iris_center[1] - iris_rad)
+    normalized = normalizeNonconcentric(gray_image, iris_center, iris_rad, pupil_center_iris_coords, pupil_rad)
     enhanced_img = ImageEnhancement(normalized)
 
 
@@ -41,26 +45,27 @@ def computeNormalizedIrisAndSave(path, closeFigAfter = True, saveResults = True)
     cv2.circle(out, (pupil_center[0]+iris_center[0]-iris_rad, pupil_center[1]+iris_center[1]-iris_rad), pupil_rad, (0, 0, 255), 1)
 
 
-    fig, ax = plt.subplots(2,3, figsize = (10,10))
+    fig, ax = plt.subplots(2,4, figsize = (12,12))
 
-    ax[0,0].imshow(out[::,::,::-1])
     #plt.xticks(np.round(np.linspace(0,out.shape[1],10)))
     pupil_out = np.repeat(pupil_crop[:, :, np.newaxis], 3, axis=2)
 
     cv2.circle(pupil_out, pupil_center, pupil_rad, (0, 0, 255), 1)
     cv2.circle(pupil_out, (pupil_out.shape[0]//2,pupil_out.shape[1]//2), iris_rad, (0, 0, 255), 1)
+    
+    ax[0,0].imshow(out[::,::,::-1])
     ax[1,0].imshow(pupil_out[::,::,::-1], cmap = 'gray')
-    ax[0,1].imshow(enhanced_img, cmap = 'gray')
-    ax[1,1].imshow(normalized, cmap = 'gray')
+    
+    ax[0,1].imshow(blurred_image, cmap = 'gray')
+    ax[1,1].imshow(blurred_pupil, cmap = 'gray')
+
+    ax[0,2].imshow(enhanced_img, cmap = 'gray')
+    ax[1,2].imshow(normalized, cmap = 'gray')
     fig.suptitle(str.split(path,'\\')[-1])
 
-    #ax[0,2].imshow(filter1, cmap = 'gray')
-    #ax[1,2].imshow(filter2, cmap = 'gray')
-    ax[0,2].imshow(bitblock1)
-    ax[1,2].imshow(bitblock2)
-    #ax[2,2].imshow(np.abs(bitblock1 - bitblock2))
-
-
+    ax[0,3].imshow(bitblock1)
+    ax[1,3].imshow(bitblock2)
+    
     #print(path)
     Path().mkdir(parents=True, exist_ok=True)
     current_dir = os.path.dirname(os.path.abspath(__file__))

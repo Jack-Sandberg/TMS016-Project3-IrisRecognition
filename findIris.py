@@ -98,7 +98,7 @@ def find_iris_adjusted(gray: np.ndarray, *,
     for point in all_points:
         distance_to_edge = min(h - point[0], h - point[1], point[0], point[1])
         daug_end = min(daugman_end, distance_to_edge - 3)
-        if daug_end > daugman_start+1:
+        if daug_end > daugman_start+daugman_step:
             val, r = daugman(gray, point, daugman_start, daug_end, daugman_step)
             intensity_values.append(val)
             coords.append((point, r))
