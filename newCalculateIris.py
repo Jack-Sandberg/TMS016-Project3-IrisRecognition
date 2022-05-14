@@ -69,7 +69,7 @@ def computeNormalizedIrisAndSave(path, closeFigAfter = True, saveResults = True)
     #print(path)
     Path().mkdir(parents=True, exist_ok=True)
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    out_dir = os.path.join(current_dir, 'OutputDataNew\\')
+    out_dir = os.path.join(current_dir, 'OutputData\\')
     individualIdx, leftOrRight, imageName = str.split(path,'\\')[-3:]
     imageName = str.split(imageName, '.')[0]
     #print(individualIdx)

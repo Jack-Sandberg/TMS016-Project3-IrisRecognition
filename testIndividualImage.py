@@ -3,9 +3,9 @@ from loadData import getDatasetImagePaths
 
 imagePaths = getDatasetImagePaths()
 
-name = 'hock'
-leftOrRight = 'l'
-idx = 1
+name = 'lec'
+leftOrRight = 'r'
+idx = 3
 imagePath = None
 for persons in imagePaths:
     for lr in persons:
