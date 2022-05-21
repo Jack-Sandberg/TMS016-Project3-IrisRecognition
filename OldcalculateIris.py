@@ -1,29 +1,51 @@
-from matplotlib.pyplot import gray
-from calculateIris import *
-from findIris import find_iris_adjusted
-from irisNormalization import normalizeNonconcentric
+# Imported libraries 
+
+from operator import le
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.preprocessing import StandardScaler
+from PIL import Image
+import matplotlib.pyplot as plt # Plotting
+import numpy as np # Linear Algebra
+import os # Accessing directory structure
+import pandas as pd # Data processing, CSV file I/O (e.g. pd.read_csv)
+from math import ceil, floor
+import cv2
+import itertools
+import math
+from typing import Tuple, List
+import glob
+from scipy.spatial import distance
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn import metrics
+
+from pathlib import Path
 
 from loadData import getDatasetImagePaths
+from scipy.spatial import distance
 
+#How to use the findIris
 
-def computeNormalizedIrisAndSave(path, closeFigAfter = True, saveResults = True):
+from findIris import preprocess_image, preprocess_pupil, daugman, find_iris
+from irisNormalization import ImageEnhancement, normalize
+from gaborWavelets import defined_gabor, getBitBlocks
+from tqdm import tqdm
+from multiprocessing import Pool
+
+def computeNormalizedIrisAndSave(path, closeFigAfter = True):
     exampleImage = Image.open(path)
     exampleArray = np.array(exampleImage)
 
 
     gray_image = preprocess_image(exampleArray)
-    blurred_image = cv2.GaussianBlur(gray_image, (15, 15), 5,5)
 
-    outer_boundary = find_iris_adjusted(blurred_image, daugman_start=45, daugman_end=80, daugman_step=1, points_step=2)
+    outer_boundary = find_iris(gray_image, daugman_start=35, daugman_end=80, daugman_step=1, points_step=2)
     iris_center, iris_rad = outer_boundary
 
     pupil_crop = preprocess_pupil(gray_image, iris_center, iris_rad)
-    blurred_pupil = cv2.GaussianBlur(pupil_crop, (15, 15), 5,5)
-    inner_boundary = find_iris_adjusted(blurred_pupil, daugman_start=round(0.3*iris_rad), daugman_end=round(0.8*iris_rad), daugman_step=1, points_step=1, scan_ratio = 0.6)
+    inner_boundary = find_iris(pupil_crop, daugman_start=round(0.3*iris_rad), daugman_end=round(0.8*iris_rad), daugman_step=1, points_step=2)
     pupil_center, pupil_rad = inner_boundary
 
-    pupil_center_iris_coords = (pupil_center[0] + iris_center[0] - iris_rad, pupil_center[1] + iris_center[1] - iris_rad)
-    normalized = normalizeNonconcentric(gray_image, iris_center, iris_rad, pupil_center_iris_coords, pupil_rad)
+    normalized = normalize([gray_image], [[*iris_center, pupil_rad]], iris_rad-pupil_rad)[0]
     enhanced_img = ImageEnhancement(normalized)
 
 
@@ -45,27 +67,26 @@ def computeNormalizedIrisAndSave(path, closeFigAfter = True, saveResults = True)
     cv2.circle(out, (pupil_center[0]+iris_center[0]-iris_rad, pupil_center[1]+iris_center[1]-iris_rad), pupil_rad, (0, 0, 255), 1)
 
 
-    fig, ax = plt.subplots(2,4, figsize = (12,12))
+    fig, ax = plt.subplots(2,3, figsize = (10,10))
 
+    ax[0,0].imshow(out[::,::,::-1])
     #plt.xticks(np.round(np.linspace(0,out.shape[1],10)))
     pupil_out = np.repeat(pupil_crop[:, :, np.newaxis], 3, axis=2)
 
     cv2.circle(pupil_out, pupil_center, pupil_rad, (0, 0, 255), 1)
     cv2.circle(pupil_out, (pupil_out.shape[0]//2,pupil_out.shape[1]//2), iris_rad, (0, 0, 255), 1)
-    
-    ax[0,0].imshow(out[::,::,::-1])
     ax[1,0].imshow(pupil_out[::,::,::-1], cmap = 'gray')
-    
-    ax[0,1].imshow(blurred_image, cmap = 'gray')
-    ax[1,1].imshow(blurred_pupil, cmap = 'gray')
-
-    ax[0,2].imshow(enhanced_img, cmap = 'gray')
-    ax[1,2].imshow(normalized, cmap = 'gray')
+    ax[0,1].imshow(enhanced_img, cmap = 'gray')
+    ax[1,1].imshow(normalized, cmap = 'gray')
     fig.suptitle(str.split(path,'\\')[-1])
 
-    ax[0,3].imshow(bitblock1)
-    ax[1,3].imshow(bitblock2)
-    
+    #ax[0,2].imshow(filter1, cmap = 'gray')
+    #ax[1,2].imshow(filter2, cmap = 'gray')
+    ax[0,2].imshow(bitblock1)
+    ax[1,2].imshow(bitblock2)
+    #ax[2,2].imshow(np.abs(bitblock1 - bitblock2))
+
+
     #print(path)
     Path().mkdir(parents=True, exist_ok=True)
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -78,25 +99,19 @@ def computeNormalizedIrisAndSave(path, closeFigAfter = True, saveResults = True)
     out_dir = out_dir + individualIdx + '\\' + leftOrRight +'\\'
     #print(str(out_dir))
     Path(out_dir).mkdir(parents=True, exist_ok=True)
-    if saveResults:
-        plt.savefig(out_dir + imageName + '.pdf')
-        np.save(out_dir + imageName + '.npy', normalized)
+    plt.savefig(out_dir + imageName + '.pdf')
+    np.save(out_dir + imageName + '.npy', normalized)
     if closeFigAfter:
         plt.close(fig)
     return fig
 
 
-
 if __name__ == '__main__':
     
 
-    
     imagePaths = getDatasetImagePaths()
     #imagePaths[individual_idx][left/right_idx][sample_idx]
-    
-    #path = imagePaths[9][1][4]
-    #fig = computeNormalizedIrisAndSave(path, closeFigAfter=False, saveResults = False)
-    #plt.show()
+    path = imagePaths[11][0][1]
 
     unwrappedImagePaths = [imagePath for person in imagePaths
                                         for leftRight in person
