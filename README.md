@@ -29,15 +29,3 @@ Note that we are not allowed to further distribute the MMU Iris dataset. The dat
 **visualizedFeatureExtraction.py** - Visualizes the found iris and its corresponding binary encoding.
 
 **testIndividualImage.py** - Tests the effect of applying a Gaussian blur to one of the images.
-
-
-/analyseRatings.py
-/CalculateIris.py
-/checkDataQuality.py
-compareHammington.py
-/findIris.py
-/gaborWavelets.py
-/irisNormalization.py
-/loadData.py
-testIndividualImage.py
-visualizedFeatureExtraction.py
