@@ -4,6 +4,8 @@ By: Jack Sandberg, Sara Arnesen, David Nordström.
 ## Summary
 A project in the course TMS016 Spatial statics and image analysis exploring the applicability of the iris recognition algorithms proposed by John Daugman. The methods are able to successfully locate 77% of the inner and outer boundaries of the iris in the MMU Iris dataset. Among the individuals with successfully located iris, we are able to classify 95% of the iris when comparing against all located iris. When restricting the comparison to only one ground-truth sample, we are able to classify 78% of the iris.  
 
+More details of the methods and results can be found in final report PDF.
+
 ## Setup
 ```
 conda create --name tms016_project3 --file requirements.txt
