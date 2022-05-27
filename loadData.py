@@ -1,9 +1,9 @@
 import os
 
 
-def getDatasetImagePaths():
+def getDatasetImagePaths(dataset_dir = 'MMU-Iris-Database\\'):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    data_dir = os.path.join(current_dir, 'MMU-Iris-Database\\')
+    data_dir = os.path.join(current_dir, dataset_dir)
     numberOfIndividuals = (len(next(os.walk(data_dir))[1]))
     imagePaths = []
     for i in range(1,numberOfIndividuals+1):
@@ -17,9 +17,9 @@ def getDatasetImagePaths():
         imagePaths.append([leftFiles, rightFiles])
     return imagePaths
 
-def getOutputDataPaths():
+def getOutputDataPaths(output_dir = 'OutputData\\'):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    data_dir = os.path.join(current_dir, 'OutputDataNew\\')
+    data_dir = os.path.join(current_dir, output_dir)
     visualizationPaths, dataPaths = [], []
     numberOfIndividuals = (len(next(os.walk(data_dir))[1]))
     for i in range(1,numberOfIndividuals+1):

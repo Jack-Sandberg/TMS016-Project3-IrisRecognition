@@ -15,10 +15,10 @@ from gaborWavelets import defined_gabor, getBitBlocks
 from multiprocessing import Pool
 
 from matplotlib.pyplot import gray
-from OldcalculateIris import *
+#from OldcalculateIris import *
 from findIris import find_iris_adjusted
 from irisNormalization import normalizeNonconcentric
-
+import tqdm
 from loadData import getDatasetImagePaths
 
 

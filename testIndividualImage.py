@@ -1,4 +1,4 @@
-from newCalculateIris import *
+from CalculateIris import *
 from loadData import getDatasetImagePaths
 
 imagePaths = getDatasetImagePaths()
