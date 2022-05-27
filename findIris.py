@@ -3,6 +3,10 @@ import numpy as np
 import itertools
 from typing import Tuple
 import math
+
+# Code from https://github.com/banderlog/daugman/blob/master/daugman.py
+# Slightly modified.
+
 '''
 Function that will crop the image array and convert it to a grayscale iamge
 '''

@@ -15,8 +15,8 @@ def ImageEnhancement(normalized):
 '''
 Converting Cartesian coordinates to Polar coordinates
 Returns a list of 64 x 512 normalized images
+From https://github.com/akshatapatel/Iris-Recognition/blob/master/IrisNormalization.py
 '''
-
 def normalize(boundary,centers, iris_radius):
     target = [img for img in boundary]
     normalized = []
@@ -47,7 +47,7 @@ def normalize(boundary,centers, iris_radius):
         normalized.append(res)
         cent+=1
     return normalized 
-
+# Similar to above but adapted for non-concentric iris'.
 def normalizeNonconcentric(image : np.ndarray, iris_center: Tuple[int,int], iris_radius: int, pupil_center: Tuple[int,int], pupil_radius: int, nsamples = 360, relative_rotation = 0.0):
     polar = np.zeros((iris_radius, nsamples))
     samples = np.linspace(0, 2 * np.pi, nsamples + 1)[:-1] + relative_rotation

@@ -1,11 +1,8 @@
-import enum
-from math import dist
 from analyzeRatings import getRatingsLRAndNameDict, getfilteredRatingsList, constructDataset
 from loadData import getOutputDataPaths
 from gaborWavelets import defined_gabor, getBitBlocks
 import numpy as np
 import matplotlib.pyplot as plt
-from irisNormalization import ImageEnhancement
 
 ratingsLRAndNameDict = getRatingsLRAndNameDict()
 filteredNames = getfilteredRatingsList(ratingsLRAndNameDict)
